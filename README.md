@@ -1,0 +1,2 @@
+# MinecraftTextureRandomizer
+Рандомайзер текстур Minecraft
