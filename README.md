@@ -15,7 +15,7 @@ MODE = 1
 
 4. Запустите файл main.py:
 
-`python main.py`
+`python randomizer.py`
 
 5. Выберите версию из списка.
 6. Немного подождите.
