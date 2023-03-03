@@ -31,7 +31,9 @@ def ParseArguments(arguments):
 	except Exception as e:
 		print(help)
 		print("Ошибка: Недостаточно аргументов")
-		sys.exit()
+		print("")
+		input("Нажмите Enter для закрытия...")
+		sys.exit(0)
 settings = ParseArguments(sys.argv)
 
 
@@ -69,35 +71,56 @@ def RandomizeFiles(dir):
 # ver = input("\nВыберите версию: ")
 
 print("Распаковка текстур...")
-if not os.path.exists(ver):
-	with ZipFile(f"{versions}\\{ver}\\{ver}.jar", 'r') as j:
+with ZipFile(f"{versions}\\{ver}\\{ver}.jar", 'r') as j:
+	# Текстуры блоков
+	if mode == 1:
 		for file in j.namelist():
-			if file.startswith('assets/'):
-				j.extract(file, ver)
+			if file.startswith('assets/minecraft/textures/block/'):
+				j.extract(file, f"tmp\\{ver}\\block")
+	if mode == 0:
+		for file in j.namelist():
+			if file.startswith('assets/minecraft/textures/blocks/'):
+				j.extract(file, f"tmp\\{ver}\\blocks")
+
+	# Текстуры предметов
+	if mode == 1:
+		for file in j.namelist():
+			if file.startswith('assets/minecraft/textures/item/'):
+				j.extract(file, f"tmp\\{ver}\\item")
+	if mode == 0:
+		for file in j.namelist():
+			if file.startswith('assets/minecraft/textures/items/'):
+				j.extract(file, f"tmp\\{ver}\\items")
 print("Рандомизация блоков...")
 try:
 	if mode == 0:
-		RandomizeFiles(f"{ver}\\assets\\minecraft\\textures\\blocks")
+		RandomizeFiles(f"tmp\\{ver}\\blocks\\assets\\minecraft\\textures\\blocks")
+		#print(1)
 	elif mode == 1:
-		RandomizeFiles(f"{ver}\\assets\\minecraft\\textures\\block")
+		RandomizeFiles(f"tmp\\{ver}\\block\\assets\\minecraft\\textures\\block")
+		#print(1)
 	print("Рандомизация предметов...")
 	if mode == 0:
-		RandomizeFiles(f"{ver}\\assets\\minecraft\\textures\\items")
+		RandomizeFiles(f"tmp\\{ver}\\items\\assets\\minecraft\\textures\\items")
+		#print(1)
 	elif mode == 1:
-		RandomizeFiles(f"{ver}\\assets\\minecraft\\textures\\item")
+		RandomizeFiles(f"tmp\\{ver}\\item\\assets\\minecraft\\textures\\item")
+		#print(1)
 	print("Сборка ресурспака...")
 	if mode == 0:
-		shutil.copytree(f"{ver}\\assets\\minecraft\\textures\\blocks", f"{ver} randomized\\assets\\minecraft\\textures\\blocks")
-		shutil.copytree(f"{ver}\\assets\\minecraft\\textures\\items", f"{ver} randomized\\assets\\minecraft\\textures\\items")
+		shutil.move(f"tmp\\{ver}\\blocks\\assets\\minecraft\\textures\\blocks", f"tmp\\{ver} randomized\\assets\\minecraft\\textures\\blocks")
+		shutil.move(f"tmp\\{ver}\\items\\assets\\minecraft\\textures\\items", f"tmp\\{ver} randomized\\assets\\minecraft\\textures\\items")
 	elif mode == 1:
-		shutil.copytree(f"{ver}\\assets\\minecraft\\textures\\block", f"{ver} randomized\\assets\\minecraft\\textures\\block")
-		shutil.copytree(f"{ver}\\assets\\minecraft\\textures\\item", f"{ver} randomized\\assets\\minecraft\\textures\\item")
-	shutil.rmtree(ver)
+		shutil.move(f"tmp\\{ver}\\block\\assets\\minecraft\\textures\\block", f"tmp\\{ver} randomized\\assets\\minecraft\\textures\\block")
+		shutil.move(f"tmp\\{ver}\\item\\assets\\minecraft\\textures\\item", f"tmp\\{ver} randomized\\assets\\minecraft\\textures\\item")
 	if mode == 0:
-		shutil.copy("mcmeta\\pack.mcmeta", f"{ver} randomized\\pack.mcmeta")
+		shutil.copy("mcmeta\\pack.mcmeta", f"tmp\\{ver} randomized\\pack.mcmeta")
 	elif mode == 1:
-		shutil.copy("mcmeta\\pack1.mcmeta", f"{ver} randomized\\pack.mcmeta")
+		shutil.copy("mcmeta\\pack1.mcmeta", f"tmp\\{ver} randomized\\pack.mcmeta")
 except Exception as e:
-	print(e, "\nПроизошла ошибка")
-shutil.make_archive(f"{ver} randomized", 'zip', f"{ver} randomized")
-shutil.rmtree(f"{ver} randomized")
+	print(e, "\nПроизошла ошибка, проверьте значение /mode:")
+	sys.exit(1)
+shutil.make_archive(f"tmp\\{ver} randomized", 'zip', f"tmp\\{ver} randomized")
+shutil.move(f"tmp\\{ver} randomized.zip", f"{ver} randomized.zip")
+shutil.rmtree(f"tmp\\{ver} randomized")
+shutil.rmtree("tmp")
